@@ -1,74 +1,71 @@
-
 /**
  * router/index.ts
  *
- * Automatic routes for `./src/pages/*.vue`
+ * Manual routes. Every page is lazy-loaded so the first load stays small.
  */
 
-// Composables
-import { createRouter, createWebHistory } from 'vue-router/auto'
-// import { routes } from 'vue-router/auto-routes'
-import Home from '@/pages/Home.vue';
-import About from '@/pages/About.vue'; // Import the About component
-import Contact from '@/pages/Contact.vue'; // Import the Contact component
-import Product from '@/pages/Product2.vue'; // Import the Product component
-// import ProductList from '@/pages/ProductList.vue'; // Import the ProductList component
-// import ProductDetail from '@/pages/ProductDetail.vue'; // Import the ProductDetail component
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
+const routes: RouteRecordRaw[] = [
+  { path: '/', name: 'Home', component: () => import('@/pages/Home.vue') },
+  { path: '/about', name: 'AboutPage', component: () => import('@/pages/About.vue') },
+  { path: '/contact', name: 'ContactPage', component: () => import('@/pages/Contact.vue') },
+  { path: '/request-sale', name: 'RequestSale', component: () => import('@/pages/Contact.vue') },
 
-
-const routes = [
-  { path: '/', name: 'Home', component: Home },
-  { path: '/about', name: 'AboutPage', component: About },
-  { path: '/contact', name: 'ContactPage', component: Contact },
-  { path: '/request-sale', component: Contact },
+  // Product flow: categories (/product) -> list with filters -> detail
   {
     path: '/product',
-    name: 'ProductSearch',
-    component: Product,
+    name: 'Product',
+    component: () => import('@/pages/Product2.vue'),
   },
-  // {
-  //   path: '/product-list',
-  //   name: 'ProductList',
-  //   component: ProductList,
-  //   props: true,
-  // },
-  // {
-  //   path: '/product-detail/:name',
-  //   name: 'ProductDetail',
-  //   component: ProductDetail,
-  //   props: true,
-  // },
-];
+  {
+    path: '/product-search',
+    name: 'ProductSearch',
+    component: () => import('@/pages/Product.vue'),
+  },
+  {
+    path: '/product-list',
+    name: 'ProductList',
+    component: () => import('@/pages/ProductList.vue'),
+  },
+  {
+    path: '/product-detail/:name',
+    name: 'ProductDetail',
+    component: () => import('@/pages/ProductDetail.vue'),
+  },
+
+  // Unknown URL -> home
+  { path: '/:pathMatch(.*)*', redirect: { name: 'Home' } },
+]
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
-  scrollBehavior(to, from, savedPosition) {
+  scrollBehavior(_to, _from, savedPosition) {
     if (savedPosition) {
-      // กรณีกดปุ่มย้อนกลับ/ไปข้างหน้า จะเลื่อนไปยังตำแหน่งที่เคยอยู่
-      return savedPosition;
-    } else {
-      // เลื่อนหน้าจอไปด้านบนสุดเมื่อเปลี่ยนหน้า
-      return { top: 0 };
+      // กดปุ่มย้อนกลับ/ไปข้างหน้า จะเลื่อนไปยังตำแหน่งที่เคยอยู่
+      return savedPosition
     }
+    // เปลี่ยนหน้าใหม่ เลื่อนไปบนสุด
+    return { top: 0 }
   },
 })
 
 // Workaround for https://github.com/vitejs/vite/issues/11804
-// router.onError((err, to) => {
-//   if (err?.message?.includes?.('Failed to fetch dynamically imported module')) {
-//     if (!localStorage.getItem('vuetify:dynamic-reload')) {
-//       console.log('Reloading page to fix dynamic import error')
-//       localStorage.setItem('vuetify:dynamic-reload', 'true')
-//       location.assign(to.fullPath)
-//     } else {
-//       console.error('Dynamic import error, reloading page did not fix it', err)
-//     }
-//   } else {
-//     console.error(err)
-//   }
-// })
+// (needed now that pages are lazy-loaded: after a new deploy, old chunks disappear)
+router.onError((err, to) => {
+  if (err?.message?.includes?.('Failed to fetch dynamically imported module')) {
+    if (!localStorage.getItem('vuetify:dynamic-reload')) {
+      console.log('Reloading page to fix dynamic import error')
+      localStorage.setItem('vuetify:dynamic-reload', 'true')
+      location.assign(to.fullPath)
+    } else {
+      console.error('Dynamic import error, reloading page did not fix it', err)
+    }
+  } else {
+    console.error(err)
+  }
+})
 
 router.isReady().then(() => {
   localStorage.removeItem('vuetify:dynamic-reload')
