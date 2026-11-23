@@ -609,6 +609,46 @@ const componentText = [
     "Name": "Form_Send_Btn",
     "TH": "ส่ง",
     "EN": "Send"
+  },
+  {
+    "Name": "Search_Title",
+    "TH": "ค้นหาสินค้า",
+    "EN": "Product Search"
+  },
+  {
+    "Name": "Search_Name_Placeholder",
+    "TH": "ระบุชื่อสินค้า",
+    "EN": "Input Name"
+  },
+  {
+    "Name": "Search_Group",
+    "TH": "กลุ่มสินค้า",
+    "EN": "Product Group"
+  },
+  {
+    "Name": "Search_All",
+    "TH": "ทั้งหมด",
+    "EN": "All"
+  },
+  {
+    "Name": "Search_Btn",
+    "TH": "ค้นหา",
+    "EN": "Search"
+  },
+  {
+    "Name": "Search_Reset_Btn",
+    "TH": "ล้างค่า",
+    "EN": "Reset"
+  },
+  {
+    "Name": "Table_NoData",
+    "TH": "ไม่พบสินค้า",
+    "EN": "No products found"
+  },
+  {
+    "Name": "PrdDetails_NotFound",
+    "TH": "ไม่พบสินค้านี้",
+    "EN": "Product not found"
   }
 ];
 
