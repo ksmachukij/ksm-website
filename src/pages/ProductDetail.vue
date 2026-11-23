@@ -2,15 +2,14 @@
   <v-container class="product-detail">
     <!-- Back Button -->
     <v-btn
-      outlined
+      variant="outlined"
       color="brown"
       class="back-button"
       @click="goBack"
     >
-      {{ componentText.filter(item => item.Name === 'PrdDetails_Back_Btn')[0][languageSystem] }}
+      {{ t('PrdDetails_Back_Btn') }}
     </v-btn>
 
-    <!-- ตรวจสอบว่า product มีข้อมูลหรือไม่ -->
     <div v-if="product">
       <!-- Product Details -->
       <v-row
@@ -25,27 +24,32 @@
           <h1 class="product-title">
             {{ product.name }}
           </h1>
+          <p class="product-info">
+            {{ product.group }}
+          </p>
           <v-img
             :src="product.image || defaultImage"
-            alt="Product Image"
+            :alt="product.name"
             max-width="800"
-            contain
             class="product-image"
           />
         </v-col>
       </v-row>
 
       <!-- Related Products Section -->
-      <v-row class="related-products">
+      <v-row
+        v-if="relatedProducts.length"
+        class="related-products"
+      >
         <v-col
           cols="12"
           class="related-title"
         >
-          <h3>{{ contentSystem.filter(item => item.Name === 'PrdDetails_Relate')[0][languageSystem] }} :</h3>
+          <h3>{{ t('PrdDetails_Relate') }} :</h3>
         </v-col>
         <v-col
-          v-for="(related, index) in relatedProducts"
-          :key="index"
+          v-for="related in relatedProducts"
+          :key="related.name"
           cols="6"
           md="3"
           class="related-item"
@@ -53,13 +57,12 @@
           <v-card
             class="related-card"
             hover
-            @click="goToProductDetail(related.id)"
+            :to="{ name: 'ProductDetail', params: { name: related.name } }"
           >
             <v-img
               :src="related.image || defaultImage"
-              alt="Related Product Image"
+              :alt="related.name"
               height="150"
-              contain
             />
             <v-card-title class="text-center multi-line">
               {{ related.name }}
@@ -68,73 +71,75 @@
         </v-col>
       </v-row>
     </div>
-    <!-- หาก product ยังไม่มีข้อมูล -->
-    <div v-else>
-      <p>Loading product details...</p>
+
+    <!-- ไม่พบสินค้าตามชื่อใน URL -->
+    <div
+      v-else
+      class="not-found"
+    >
+      <p>{{ t('PrdDetails_NotFound') }}</p>
     </div>
   </v-container>
 </template>
 
-
 <script>
 import { defineComponent, computed } from 'vue';
-import { useStore } from 'vuex'
-import { componentText, contentSystem } from '@/assets/static/productlist'
-import { productList } from '@/assets/static/productlist';
-import defaultImagePath from '@/assets/image/IIR.png'; // Import the default image
+import { useStore } from 'vuex';
+import {
+  componentText,
+  contentSystem,
+  productList,
+} from '@/assets/static/productlist';
+import defaultImagePath from '@/assets/image/IIR.png'; // รูปเริ่มต้นเมื่อสินค้าไม่มีรูป
+
+const TEXTS = [...componentText, ...contentSystem];
 
 export default defineComponent({
   name: 'ProductDetail',
   setup() {
     const store = useStore();
-    const languageSystem = computed(() => store.state.config.language)
-    return {
-      store,
-      languageSystem
-    }
+    const languageSystem = computed(() => store.state.config.language);
+    return { languageSystem };
   },
   data() {
     return {
-      product: null, // Selected product
-      relatedProducts: [], // List of related products
-      defaultImage: defaultImagePath, // Path to the default image
-      componentText: componentText,
-      contentSystem: contentSystem,
+      defaultImage: defaultImagePath,
     };
   },
   computed: {
+    // ชื่อสินค้าจาก URL: /product-detail/:name
     productName() {
-      return this.$route.params.name; // Get `id` from route params
+      return String(this.$route.params.name ?? '');
     },
-  },
-  watch: {
-    // Watch for route changes to fetch the new product data
-    productName: 'fetchProduct',
-  },
-  mounted() {
-    this.fetchProduct(); // Fetch product data when the component mounts
+    // คำนวณจาก URL โดยตรง จึงอัปเดตเองเมื่อ URL เปลี่ยน ไม่ต้องใช้ watcher/mounted
+    product() {
+      return productList.find((p) => p.name === this.productName) ?? null;
+    },
+    // สินค้ากลุ่มเดียวกัน ไม่รวมตัวที่กำลังดูอยู่
+    relatedProducts() {
+      if (!this.product) return [];
+      return productList.filter(
+        (p) => p.group === this.product.group && p.name !== this.product.name,
+      );
+    },
   },
   methods: {
-    // Fetch product data based on the current productId
-    fetchProduct() {
-      this.product =
-        productList.find((p) => p.name === this.productName) || null;
-
-      // Filter related products (you may define "related" logic differently)
-      this.relatedProducts = productList.filter((p) => p.group == this.product?.group);
+    t(name) {
+      const row = TEXTS.find((item) => item.Name === name);
+      return row?.[this.languageSystem] ?? name;
     },
-    // Navigate to the product detail page
-    goToProductDetail(productName) {
-      this.$router.push({ name: 'ProductDetail', params: { name: productName } });
-    },
-    // Navigate back to the product list page
+    // ถ้ามาจากหน้ารายการ ย้อนกลับเพื่อคงตัวกรองเดิมไว้ ไม่งั้นไปหน้ารายการเปล่า
     goBack() {
-      this.$router.push({ name: 'ProductList' }); // Update to match your route name
+      const previous = window.history.state?.back;
+      if (typeof previous === 'string' && previous.startsWith('/product-list')) {
+        this.$router.back();
+      } else {
+        this.$router.push({ name: 'ProductList' });
+      }
     },
   },
 });
 </script>
-
 
 <style scoped>
 .product-detail {
@@ -153,14 +158,14 @@ export default defineComponent({
   color: #333;
 }
 
-.product-image {
-  margin: 20px auto;
-}
-
 .product-info {
-  margin: 20px 0;
+  margin: 8px 0 0;
   font-size: 1.1rem;
   color: #333;
+}
+
+.product-image {
+  margin: 20px auto;
 }
 
 .related-products {
@@ -188,5 +193,11 @@ export default defineComponent({
   white-space: normal;
   word-wrap: break-word;
   text-align: center;
+}
+
+.not-found {
+  padding: 40px 0;
+  text-align: center;
+  font-size: 1.1rem;
 }
 </style>
