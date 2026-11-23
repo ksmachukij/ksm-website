@@ -3,38 +3,38 @@
     class="product-list"
     fluid
   >
-    <!-- Sidebar Filter -->
     <v-row dense>
+      <!-- Sidebar Filter -->
       <v-col
         cols="12"
         md="4"
       >
         <v-card class="sidebar">
-          <v-card-title>{{ componentText.filter(item => item.Name === 'Filter_Header')[0][languageSystem] }}</v-card-title>
+          <v-card-title>{{ t('Filter_Header') }}</v-card-title>
           <v-divider />
           <v-card-text>
             <!-- Search Name Field -->
             <v-text-field
               v-model="searchName"
-              :label="componentText.filter(item => item.Name === 'Filter_SearchName')[0][languageSystem]"
-              outlined
-              dense
+              :label="t('Filter_SearchName')"
+              variant="outlined"
+              density="compact"
               class="mb-4"
             />
 
-            <!-- Multi-select Filters -->
-
+            <!-- Multi-select group filter -->
             <v-row dense>
               <v-col
-                v-for="(option, optionIndex) in groupOptions"
-                :key="optionIndex"
+                v-for="option in groupOptions"
+                :key="option"
                 cols="6"
               >
                 <v-checkbox
-                  :key="option"
                   v-model="selectedGroups"
                   :label="option"
                   :value="option"
+                  density="compact"
+                  hide-details
                 />
               </v-col>
             </v-row>
@@ -45,23 +45,24 @@
             block
             @click="resetFilters"
           >
-            {{ componentText.filter(item => item.Name === 'Filter_Reset_Btn')[0][languageSystem] }}
+            {{ t('Filter_Reset_Btn') }}
           </v-btn>
         </v-card>
       </v-col>
+
       <!-- Main Product Table Section -->
       <v-col
         cols="12"
         md="8"
       >
         <v-data-table
-          :headers="headersGroup[languageSystem]"
+          v-model:page="page"
+          :headers="headers"
           :items="filteredProducts"
-          :filter-keys="filterKeys"
-          :search="searchName"
-          :custom-filter="customFilter"
-          :multi-sort="true"
-          class="elevation-1">
+          :no-data-text="t('Table_NoData')"
+          multi-sort
+          class="elevation-1"
+        >
           <template #[`item.name`]="{ item }">
             <v-btn
               variant="text"
@@ -78,114 +79,90 @@
 
 <script>
 import { defineComponent, computed } from 'vue';
-import { useStore } from 'vuex'
-import { componentText, contentSystem } from '@/assets/static/productlist'
-import { productGroup, productList } from '@/assets/static/productlist';
+import { useStore } from 'vuex';
+import {
+  componentText,
+  contentSystem,
+  productGroup,
+  productList,
+} from '@/assets/static/productlist';
+
+const TEXTS = [...componentText, ...contentSystem];
+
+// query ของ vue-router เป็นได้ทั้ง string | string[] | null
+const first = (value) => (Array.isArray(value) ? value[0] : value);
 
 export default defineComponent({
   name: 'ProductList',
   setup() {
     const store = useStore();
-    const languageSystem = computed(() => store.state.config.language)
-    return {
-      store,
-      languageSystem
-    }
+    const languageSystem = computed(() => store.state.config.language);
+    return { languageSystem };
   },
   data() {
     return {
-      groupOptions: productGroup, // Group options
-      selectedGroups: [], // Selected groups filter
-      filterKeys: [],
-      searchName: '', // Search input value
-      products: productList, // Product list
-      headersGroup: {
-        TH:  [
-            { title: 'ชื่อ', value: 'name', sortable: true },
-            { title: 'กลุ่ม', value: 'group', sortable: true },
-          ],
-        EN: [
-          { title: 'Name', value: 'name', sortable: true },
-          { title: 'Group', value: 'group', sortable: true },
-        ]
-      },
-      sortBy: [],
-      currentPage: 1,
-      itemsPerPage: 10,
-      sortOptions: [
-        { text: 'Name', value: 'name' },
-        { text: 'Group', value: 'group' },
-      ],
-      componentText: componentText,
-      contentSystem: contentSystem,
+      groupOptions: productGroup, // ตัวเลือกกลุ่มทั้งหมด
+      selectedGroups: [], // กลุ่มที่เลือก
+      searchName: '', // คำค้นหาชื่อ
+      products: productList,
+      page: 1,
     };
   },
   computed: {
+    headers() {
+      return [
+        { title: this.t('SortBy_Name'), value: 'name', sortable: true },
+        { title: this.t('SortBy_Group'), value: 'group', sortable: true },
+      ];
+    },
+    // กรองที่เดียว (ชื่อ + กลุ่ม) แล้วส่งให้ตารางแสดงผลตรงๆ
     filteredProducts() {
-      return this.products.filter(product => {
-        const matchesName = this.searchName
-          ? product.name.toLowerCase().includes(this.searchName.toLowerCase())
-          : true;
-
-        const matchesGroup = this.selectedGroups.length
-          ? this.selectedGroups.includes(product.group)
-          : true;
-
+      const keyword = (this.searchName || '').trim().toLowerCase();
+      return this.products.filter((product) => {
+        const matchesName = !keyword
+          || String(product.name).toLowerCase().includes(keyword);
+        const matchesGroup = !this.selectedGroups.length
+          || this.selectedGroups.includes(product.group);
         return matchesName && matchesGroup;
       });
     },
   },
   watch: {
-    searchName() {
-      this.updateFilterKeys();
+    // อ่านตัวกรองจาก URL ทั้งตอนเปิดหน้าและตอน query เปลี่ยน
+    // (เช่น มาจากการ์ดหมวดสินค้าหรือฟอร์มค้นหา)
+    '$route.query': { immediate: true, handler: 'applyQuery' },
+    // ตัวกรองเปลี่ยนแล้วกลับไปหน้าแรกของตาราง
+    filteredProducts() {
+      this.page = 1;
     },
-    selectedGroups() {
-      this.updateFilterKeys();
-    },
-  },
-  mounted() {
-    // Access query parameters from the route
-    const { query } = this.$route;
-
-    if (query.name) {
-      this.searchName = query.name;
-    }
-
-    if (query.productGroup && query.productGroup !== 'All') {
-      this.selectedGroups = query.productGroup.split(',');
-    } else {
-      this.selectedGroups = [];
-    }
   },
   methods: {
-    // Reset all filters
+    t(name) {
+      const row = TEXTS.find((item) => item.Name === name);
+      return row?.[this.languageSystem] ?? name;
+    },
+    applyQuery(query = this.$route.query) {
+      // ถ้า component ยังค้างอยู่ตอนเปลี่ยนไปหน้าอื่น (เช่น keep-alive) ไม่ต้องรีเซ็ตตัวกรอง
+      if (this.$route.name !== 'ProductList') return;
+
+      this.searchName = first(query.name) || '';
+
+      const group = first(query.productGroup);
+      this.selectedGroups = group && group !== 'All'
+        ? group.split(',').filter((g) => this.groupOptions.includes(g))
+        : [];
+    },
     resetFilters() {
       this.searchName = '';
       this.selectedGroups = [];
-    },
-    customFilter(currentItem = '', searchValue = '', tableObject) {
-      let searchArray = searchValue?.split('|')
-      let res = false
-      if (this.filterKeys.includes('name')
-        && currentItem.toLocaleLowerCase()
-          .includes(searchValue.toLocaleLowerCase())) res = true
-
-      if (this.filterKeys.includes('group')
-        && searchArray.includes(tableObject?.columns?.group)) {
-        res = true
+      // ล้าง query ใน URL ด้วย ไม่งั้น refresh แล้วตัวกรองกลับมา
+      if (Object.keys(this.$route.query).length) {
+        this.$router.replace({ name: 'ProductList', query: {} });
       }
-      return res
-    },
-    updateFilterKeys() {
-      this.filterKeys = [];
-      if (this.searchName) this.filterKeys.push('name');
-      if (this.selectedGroups.length) this.filterKeys.push('group');
     },
   },
 });
 </script>
-
-
 
 <style scoped>
 .product-list {
@@ -195,14 +172,5 @@ export default defineComponent({
 .sidebar {
   background-color: #f5f2ee;
   padding: 20px;
-}
-
-.sort-options {
-  padding: 10px;
-}
-
-.product-table {
-  padding: 20px;
-  background-color: white;
 }
 </style>
