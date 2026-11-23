@@ -75,10 +75,16 @@ export default defineComponent({
   },
   computed: {
     categories() {
-      return productList2.map((category) => ({
-        ...category,
-        image: categoryImages[category.id],
-      }));
+      return productList2.map((category) => {
+        // รองรับทั้งข้อมูลที่มี `label` (สองภาษา) และที่ชื่อเป็น `name` แบบ object หรือข้อความ
+        const label = category.label ?? category.name;
+        return {
+          ...category,
+          label: typeof label === 'string' ? { TH: label, EN: label } : label,
+          groups: category.groups ?? [],
+          image: categoryImages[category.id],
+        };
+      });
     },
   },
   methods: {
