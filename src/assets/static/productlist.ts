@@ -75,7 +75,7 @@ const productGroup: string[] = [
   "Curing Material",
   "Dispersion",
   "Ethylene Propylene Diene Rubber(EPDM)",
-  "Nitrile Butadiene Rubber(SBR)",
+  "Nitrile Butadiene Rubber(NBR)",
   "Oil",
   "Para Aramid",
   "Pigment",
@@ -328,55 +328,55 @@ const productList = [
   },
   {
     "name": "3325C",
-    "group": "Nitrile Butadiene Rubber(SBR)"
+    "group": "Nitrile Butadiene Rubber(NBR)"
   },
   {
     "name": "N220S",
-    "group": "Nitrile Butadiene Rubber(SBR)"
+    "group": "Nitrile Butadiene Rubber(NBR)"
   },
   {
     "name": "N220SH",
-    "group": "Nitrile Butadiene Rubber(SBR)"
+    "group": "Nitrile Butadiene Rubber(NBR)"
   },
   {
     "name": "N230S",
-    "group": "Nitrile Butadiene Rubber(SBR)"
+    "group": "Nitrile Butadiene Rubber(NBR)"
   },
   {
     "name": "N230SL",
-    "group": "Nitrile Butadiene Rubber(SBR)"
+    "group": "Nitrile Butadiene Rubber(NBR)"
   },
   {
     "name": "N230SV",
-    "group": "Nitrile Butadiene Rubber(SBR)"
+    "group": "Nitrile Butadiene Rubber(NBR)"
   },
   {
     "name": "N217SH",
-    "group": "Nitrile Butadiene Rubber(SBR)"
+    "group": "Nitrile Butadiene Rubber(NBR)"
   },
   {
     "name": "N230SV",
-    "group": "Nitrile Butadiene Rubber(SBR)"
+    "group": "Nitrile Butadiene Rubber(NBR)"
   },
   {
     "name": "210S",
-    "group": "Nitrile Butadiene Rubber(SBR)"
+    "group": "Nitrile Butadiene Rubber(NBR)"
   },
   {
     "name": "4105",
-    "group": "Nitrile Butadiene Rubber(SBR)"
+    "group": "Nitrile Butadiene Rubber(NBR)"
   },
   {
     "name": "6240",
-    "group": "Nitrile Butadiene Rubber(SBR)"
+    "group": "Nitrile Butadiene Rubber(NBR)"
   },
   {
     "name": "6280",
-    "group": "Nitrile Butadiene Rubber(SBR)"
+    "group": "Nitrile Butadiene Rubber(NBR)"
   },
   {
     "name": "7030",
-    "group": "Nitrile Butadiene Rubber(SBR)"
+    "group": "Nitrile Butadiene Rubber(NBR)"
   },
   {
     "name": "B-30",
