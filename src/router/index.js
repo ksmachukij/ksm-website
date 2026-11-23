@@ -1,12 +1,12 @@
 /**
- * router/index.ts
+ * router/index.js
  *
  * Manual routes. Every page is lazy-loaded so the first load stays small.
  */
 
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 
-const routes: RouteRecordRaw[] = [
+const routes = [
   { path: '/', name: 'Home', component: () => import('@/pages/Home.vue') },
   { path: '/about', name: 'AboutPage', component: () => import('@/pages/About.vue') },
   { path: '/contact', name: 'ContactPage', component: () => import('@/pages/Contact.vue') },
@@ -41,7 +41,7 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
-  scrollBehavior(_to, _from, savedPosition) {
+  scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
       // กดปุ่มย้อนกลับ/ไปข้างหน้า จะเลื่อนไปยังตำแหน่งที่เคยอยู่
       return savedPosition
