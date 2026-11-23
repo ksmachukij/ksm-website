@@ -355,10 +355,6 @@ const productList = [
     "group": "Nitrile Butadiene Rubber(NBR)"
   },
   {
-    "name": "N230SV",
-    "group": "Nitrile Butadiene Rubber(NBR)"
-  },
-  {
     "name": "210S",
     "group": "Nitrile Butadiene Rubber(NBR)"
   },
