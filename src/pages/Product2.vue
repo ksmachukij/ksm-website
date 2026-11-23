@@ -18,13 +18,13 @@
         >
           <v-img
             :src="category.image"
-            :alt="category.name[languageSystem]"
+            :alt="category.label[languageSystem]"
             cover
             class="pcard-img"
           />
           <div class="overlay">
             <span class="cnum">{{ String(index + 1).padStart(2, '0') }}</span>
-            <span class="cname">{{ category.name[languageSystem] }}</span>
+            <span class="cname">{{ category.label[languageSystem] }}</span>
           </div>
           <div class="arrow-btn">
             <v-icon
