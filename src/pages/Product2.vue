@@ -4,26 +4,27 @@
     class="pa-0 product-page"
   >
     <div class="ksm-hero">
-      <h1>{{ contentSystem.filter(item => item.Name === 'ProductPage_Header')[0][languageSystem] }}</h1>
-      <p>{{ contentSystem.filter(item => item.Name === 'ProductPage_SubHeader')[0][languageSystem] }}</p>
+      <h1>{{ t('ProductPage_Header') }}</h1>
+      <p>{{ t('ProductPage_SubHeader') }}</p>
     </div>
 
     <div class="card-grid-wrap">
       <div class="card-grid">
-        <div
+        <router-link
           v-for="(category, index) in categories"
-          :key="category.name"
+          :key="category.id"
+          :to="{ name: 'ProductList', query: { productGroup: category.groups.join(',') } }"
           class="pcard"
-          @click="goToCategory(category)"
         >
           <v-img
             :src="category.image"
+            :alt="category.name[languageSystem]"
             cover
             class="pcard-img"
           />
           <div class="overlay">
             <span class="cnum">{{ String(index + 1).padStart(2, '0') }}</span>
-            <span class="cname">{{ category.name }}</span>
+            <span class="cname">{{ category.name[languageSystem] }}</span>
           </div>
           <div class="arrow-btn">
             <v-icon
@@ -31,7 +32,7 @@
               size="13"
             />
           </div>
-        </div>
+        </router-link>
       </div>
     </div>
   </v-container>
@@ -40,7 +41,7 @@
 <script>
 import { defineComponent, computed } from 'vue';
 import { useStore } from 'vuex';
-import { productList2, contentSystem } from '@/assets/static/productlist';
+import { productList2, componentText, contentSystem } from '@/assets/static/productlist';
 
 import paraAramidImg from '@/assets/image/product-category/para-aramid.jpg';
 import syntheticRubberImg from '@/assets/image/product-category/synthetic-rubber.jpg';
@@ -51,39 +52,39 @@ import fillerImg from '@/assets/image/product-category/filler.jpg';
 import processingAidImg from '@/assets/image/product-category/processing-aid.jpg';
 import curingMaterialImg from '@/assets/image/product-category/curing-material.jpg';
 
-const categoryImages = [
-  paraAramidImg,
-  syntheticRubberImg,
-  acceleratorImg,
-  antioxidantImg,
-  tackifierImg,
-  fillerImg,
-  processingAidImg,
-  curingMaterialImg,
-];
+// ผูกรูปกับหมวดด้วย id (ไม่ผูกกับลำดับ) ต้องตรงกับ id ใน productList2
+const categoryImages = {
+  'para-aramid': paraAramidImg,
+  'synthetic-rubber': syntheticRubberImg,
+  accelerator: acceleratorImg,
+  antioxidant: antioxidantImg,
+  tackifier: tackifierImg,
+  filler: fillerImg,
+  'processing-aid': processingAidImg,
+  'curing-material': curingMaterialImg,
+};
+
+const TEXTS = [...componentText, ...contentSystem];
 
 export default defineComponent({
   name: 'ProductPage',
   setup() {
     const store = useStore();
     const languageSystem = computed(() => store.state.config.language);
-    return {
-      languageSystem,
-    };
+    return { languageSystem };
   },
-  data: () => ({
-    contentSystem,
-    categories: productList2.map((category, index) => ({
-      ...category,
-      image: categoryImages[index],
-    })),
-  }),
+  computed: {
+    categories() {
+      return productList2.map((category) => ({
+        ...category,
+        image: categoryImages[category.id],
+      }));
+    },
+  },
   methods: {
-    goToCategory(category) {
-      this.$router.push({
-        path: '/product-list',
-        query: { productGroup: category.name },
-      });
+    t(name) {
+      const row = TEXTS.find((item) => item.Name === name);
+      return row?.[this.languageSystem] ?? name;
     },
   },
 });
@@ -128,6 +129,7 @@ export default defineComponent({
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
   grid-template-rows: 340px 220px 220px;
+  grid-auto-rows: 220px; /* ถ้าเพิ่มหมวดเกิน 8 ใบ แถวที่เกินจะสูงเท่ากัน */
   gap: 8px;
 }
 .card-grid .pcard:nth-child(1) {
@@ -137,12 +139,19 @@ export default defineComponent({
   font-size: 24px;
 }
 
-/* CARDS */
+/* CARDS (router-link renders an <a>) */
 .pcard {
   position: relative;
+  display: block;
   overflow: hidden;
   cursor: pointer;
   background: var(--ksm-dark);
+  color: inherit;
+  text-decoration: none;
+}
+.pcard:focus-visible {
+  outline: 3px solid var(--ksm-red);
+  outline-offset: -3px;
 }
 .pcard :deep(.pcard-img) {
   width: 100%;
@@ -194,7 +203,8 @@ export default defineComponent({
   border: 1px solid transparent;
   transition: all 0.2s;
 }
-.pcard:hover .arrow-btn {
+.pcard:hover .arrow-btn,
+.pcard:focus-visible .arrow-btn {
   background: var(--ksm-red);
   border-color: var(--ksm-red);
   color: #fff;
@@ -224,6 +234,7 @@ export default defineComponent({
   .card-grid {
     grid-template-columns: 1fr;
     grid-template-rows: unset;
+    grid-auto-rows: auto;
   }
   .card-grid .pcard {
     height: 200px;
