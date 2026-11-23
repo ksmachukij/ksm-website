@@ -612,46 +612,61 @@ const componentText = [
   }
 ];
 
+ts
+// หมวดสินค้าหลัก (การ์ดในหน้า /product)
+// id    = คีย์ภายใน (ใช้จับคู่รูป)
+// name  = ชื่อที่แสดง สองภาษา
+// groups = ชื่อกลุ่มย่อยใน productGroup ที่หมวดนี้ครอบคลุม (ต้องสะกดตรงทุกตัวอักษร)
 const productList2 = [
   {
-    "name": "Para Aramid",
-    "image": "",
-    "subcategory": []
+    "id": "para-aramid",
+    "name": { "TH": "พารา-อะรามิด", "EN": "Para Aramid" },
+    "groups": ["Para Aramid"]
   },
   {
-    "name": "Synthetic Rubber",
-    "image": "",
-    "subcategory": []
+    "id": "synthetic-rubber",
+    "name": { "TH": "ยางสังเคราะห์", "EN": "Synthetic Rubber" },
+    "groups": [
+      "Butadiene Rubber(BR)",
+      "Butyl Reclaimed Rubber(Reclaim Butyl)",
+      "Butyl Rubber(IIR)",
+      "Chloroprene Rubber(CR)",
+      "Chlorosulphonated Polyethylene(CSM)",
+      "Ethylene Propylene Diene Rubber(EPDM)",
+      "Nitrile Butadiene Rubber(NBR)",
+      "Styrene Butadiene Rubber(SBR)",
+      "Thermoplastic Polyurethane(TPU)"
+    ]
   },
   {
-    "name": "Accelerator",
-    "image": "",
-    "subcategory": []
+    "id": "accelerator",
+    "name": { "TH": "สารเร่ง", "EN": "Accelerator" },
+    "groups": ["Accelerator"]
   },
   {
-    "name": "Antioxidant & Antiozonant",
-    "image": "",
-    "subcategory": []
+    "id": "antioxidant",
+    "name": { "TH": "สารป้องกันการเสื่อมสภาพ", "EN": "Antioxidant & Antiozonant" },
+    "groups": ["Antioxidant"]
   },
   {
-    "name": "Tackifier",
-    "image": "",
-    "subcategory": []
+    "id": "tackifier",
+    "name": { "TH": "สารเพิ่มความเหนียวติด", "EN": "Tackifier" },
+    "groups": ["Tackifier"]
   },
   {
-    "name": "Filler",
-    "image": "",
-    "subcategory": []
+    "id": "filler",
+    "name": { "TH": "สารตัวเติม", "EN": "Filler" },
+    "groups": ["Calcium Carbonate", "Carbon Black", "Pigment"]
   },
   {
-    "name": "Processing Aid",
-    "image": "",
-    "subcategory": []
+    "id": "processing-aid",
+    "name": { "TH": "สารช่วยในกระบวนการผลิต", "EN": "Processing Aid" },
+    "groups": ["Dispersion", "Oil"]
   },
   {
-    "name": "Curing Material",
-    "image": "",
-    "subcategory": []
+    "id": "curing-material",
+    "name": { "TH": "วัสดุวัลคาไนซ์", "EN": "Curing Material" },
+    "groups": ["Curing Material"]
   }
 ]
 
