@@ -27,6 +27,12 @@
           <p class="product-info">
             {{ product.group }}
           </p>
+          <p
+            v-if="product.countries.length"
+            class="product-info"
+          >
+            {{ countryTitle[languageSystem] }}: {{ countryNames(product.countries) }}
+          </p>
           <v-img
             :src="product.image || defaultImage"
             :alt="product.name"
@@ -85,11 +91,12 @@
 <script>
 import { defineComponent, computed } from 'vue';
 import { useStore } from 'vuex';
+import { componentText, contentSystem } from '@/assets/static/productlist';
 import {
-  componentText,
-  contentSystem,
-  productList,
-} from '@/assets/static/productlist';
+  countryLabel,
+  countryTitle,
+  productsWithCountry as productList,
+} from '@/assets/static/productcountry';
 import defaultImagePath from '@/assets/image/IIR.png'; // รูปเริ่มต้นเมื่อสินค้าไม่มีรูป
 
 const TEXTS = [...componentText, ...contentSystem];
@@ -104,6 +111,7 @@ export default defineComponent({
   data() {
     return {
       defaultImage: defaultImagePath,
+      countryTitle,
     };
   },
   computed: {
@@ -124,6 +132,14 @@ export default defineComponent({
     },
   },
   methods: {
+    // ชื่อประเทศตามภาษา ("-" ถ้ายังไม่มีข้อมูล)
+    countryName(key) {
+      return countryLabel[key]?.[this.languageSystem] ?? '-';
+    },
+    // หลายประเทศคั่นด้วยจุลภาค
+    countryNames(keys) {
+      return (keys ?? []).map((key) => this.countryName(key)).join(', ');
+    },
     t(name) {
       const row = TEXTS.find((item) => item.Name === name);
       return row?.[this.languageSystem] ?? name;
