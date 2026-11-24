@@ -10,7 +10,16 @@
         md="4"
       >
         <v-card class="sidebar">
-          <v-card-title>{{ t('Filter_Header') }}</v-card-title>
+          <v-card-title class="d-flex align-center justify-space-between">
+            <span>{{ t('Filter_Header') }}</span>
+            <v-btn
+              color="primary"
+              size="small"
+              @click="resetFilters"
+            >
+              {{ t('Filter_Reset_Btn') }}
+            </v-btn>
+          </v-card-title>
           <v-divider />
           <v-card-text>
             <!-- Search Name Field -->
@@ -39,14 +48,6 @@
               </v-col>
             </v-row>
           </v-card-text>
-          <v-divider class="my-4" />
-          <v-btn
-            color="primary"
-            block
-            @click="resetFilters"
-          >
-            {{ t('Filter_Reset_Btn') }}
-          </v-btn>
         </v-card>
       </v-col>
 
