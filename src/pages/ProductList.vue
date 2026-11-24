@@ -22,19 +22,6 @@
               class="mb-4"
             />
 
-            <!-- Country filter -->
-            <v-select
-              v-model="selectedCountries"
-              :items="countryItems"
-              :label="countryTitle[languageSystem]"
-              multiple
-              chips
-              closable-chips
-              variant="outlined"
-              density="compact"
-              class="mb-4"
-            />
-
             <!-- Multi-select group filter -->
             <v-row dense>
               <v-col
@@ -103,7 +90,6 @@ import {
 } from '@/assets/static/productlist';
 import {
   countryLabel,
-  countryOptions,
   countryTitle,
   productsWithCountry,
 } from '@/assets/static/productcountry';
@@ -131,10 +117,8 @@ export default defineComponent({
     return {
       groupOptions: productGroup, // ตัวเลือกกลุ่มทั้งหมด
       selectedGroups: [], // กลุ่มที่เลือก
-      selectedCountries: [], // ประเทศที่เลือก
       searchName: '', // คำค้นหาชื่อ
       products: productsWithCountry, // สินค้าพร้อมฟิลด์ country
-      countryTitle,
       page: 1,
     };
   },
@@ -146,14 +130,7 @@ export default defineComponent({
         { title: countryTitle[this.languageSystem], value: 'country', sortable: true },
       ];
     },
-    // ตัวเลือกประเทศ แสดงชื่อตามภาษา เก็บค่าเป็นชื่ออังกฤษ
-    countryItems() {
-      return countryOptions.map((key) => ({
-        title: this.countryName(key),
-        value: key,
-      }));
-    },
-    // กรองที่เดียว (ชื่อ + กลุ่ม + ประเทศ) แล้วส่งให้ตารางแสดงผลตรงๆ
+    // กรองที่เดียว (ชื่อ + กลุ่ม) แล้วส่งให้ตารางแสดงผลตรงๆ
     filteredProducts() {
       const keyword = (this.searchName || '').trim().toLowerCase();
       return this.products.filter((product) => {
@@ -161,9 +138,7 @@ export default defineComponent({
           || String(product.name).toLowerCase().includes(keyword);
         const matchesGroup = !this.selectedGroups.length
           || this.selectedGroups.includes(product.group);
-        const matchesCountry = !this.selectedCountries.length
-          || this.selectedCountries.some((c) => product.countries.includes(c));
-        return matchesName && matchesGroup && matchesCountry;
+        return matchesName && matchesGroup;
       });
     },
   },
@@ -197,12 +172,10 @@ export default defineComponent({
 
       this.searchName = first(query.name) || '';
       this.selectedGroups = parseList(query.productGroup, this.groupOptions);
-      this.selectedCountries = parseList(query.country, countryOptions);
     },
     resetFilters() {
       this.searchName = '';
       this.selectedGroups = [];
-      this.selectedCountries = [];
       // ล้าง query ใน URL ด้วย ไม่งั้น refresh แล้วตัวกรองกลับมา
       if (Object.keys(this.$route.query).length) {
         this.$router.replace({ name: 'ProductList', query: {} });
